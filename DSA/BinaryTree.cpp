@@ -672,7 +672,60 @@
     }
 
 22. Nodes at Distance of K in BT
-    vector<int> 
+    void markParents(TreeNode* root, unordered_map<TreeNode*, TreeNode*>& parent_track, TreeNode* target) {
+        queue<TreeNode*> q;
+        q.push(root);
+        while(!q.empty()){
+            TreeNode* node = q.front();
+            q.pop();
+            if(node->left) {
+                parent_track[node->left] = node;
+                q.push(node->left);
+            }
+            if(node->right) {
+                parent_track[node->right] = node;
+                q.push(node->right);
+            }
+        }
+    }
+    vector<int> distaceK(TreeNode* root, TreeNode* tar, int k){
+        unordered_map<TreeNode*, TreeNode*> parent_track; //node->parent
+        markParents(root, parent_track, tar);
+
+        unordered_map<TreeNode*, bool> visited;
+        queue<TreeNode*> q;
+        q.push(tar);
+        visited[tar] = true;
+        int level = 0;
+        while(!q.emoty()){
+            int size = q.size();
+            if(level++ == k) break; // Stop when we reach the desired distance
+            
+            for(int i = 0; i < size; i++) {
+                TreeNode* node = q.front();
+                q.pop();
+
+                if(current->left && !visited[current->left]) {
+                    q.push(current->left);
+                    visited[current->left] = true;
+                }
+                if(current->right && !visited[current->right]) {
+                    q.push(current->right);
+                    visited[current->right] = true;
+                }if(parent_track[current] && !visited[parent_track[current]]) {
+                    q.push(parent_track[current]);
+                    visited[parent_track[current]] = true;
+                }
+            }
+        }
+        vector<int> result;
+        while(!q.empty()) {
+            result.push_back(q.front()->data);
+            q.pop();
+        }
+        return result;
+    }
+
 
 
     
