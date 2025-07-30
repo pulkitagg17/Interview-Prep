@@ -727,6 +727,177 @@
     }
 
 
+23. Min Time to Burn Tree
+    int findMaxDis(map<TreeNode*, TreeNode*> mp, TreeNode* tar){
+        int time = 0;
+        map<TreeNode*, bool> vis;
+        queue<TreeNode*> q;
+        q.push(tar);
+        vis[tar] = true;
+
+        while(!q.empty()){
+            int size = q.size();
+            int burned = 0;
+            for(int i=0 ; i<size ; i++){
+                auto node = q.front();
+                q.pop();
+                //left
+                if(node->left && !vis[node->left]){
+                    burned = 1;
+                    vis[node->left] = true;
+                    q.push(node->left);
+                }
+                //right
+                if(node->right && !vis[node->right]){
+                    burned = 1;
+                    vis[node->right] = true;
+                    q.push(node->right);
+                }
+                //parent(up)
+                if(mp[node] && !vis[mp[node]]){
+                    burned = 1;
+                    vis[mp[node]] = 1;
+                    q.push(mp[node]);
+                }
+            }
+            if(burned) time++;
+        }
+        return time;
+    }
+    TreeNode* bfsToMapParent(TreeNode* root,  map<TreeNode*, TreeNode*> &mp ,int start){
+        queue<TreeNode*> q;
+        q.push(root);
+        TreeNode* res;
+        while(!q.empty()){
+            auto node = q.front(); q.pop();
+            if(node->val == start) res = node;
+            if(node->left){
+                q.push(node->left);
+                mp[node->left] = node;
+            }
+            if(node->right){
+                q.push(node->right);
+                mp[node->right] = node;
+            }
+        }
+
+        return res;
+    }
+    int amountOfTime(TreeNode* root, int start) {
+        map<TreeNode*, TreeNode*> mp;
+        TreeNode* tar = bfsToMapParent(root,mp,start);
+        int maxi = findMaxDis(mp, tar);
+
+        return maxi;
+    }
+
+24. Count Total Node in Complete Tree
+    Naive - Traverse the tree and count nodes(recusion - inorder,pre,post)
+    Smart - check if l and r subtree height are equal -> return 2^h - 1
+            else return 1 + count(l) + count(r); (recusively)
+    
+
+    int countNodes(TreeNode* root) {
+        //this below is naive and traversing all nodes
+        // if(root == NULL) return 0;
+
+        // int left = countNodes(root->left);
+        // int right = countNodes(root->right);
+        // return left+right+1;
+
+        //this approach is not traversing all nodes
+        //it is checking the height of left and right subtree
+        //and using the property of complete binary tree
+        if(root == NULL) return 0;
+
+        int left = countLeft(root->left);
+        int right = countRight(root->right);
+
+        if(left == right) return (1<<(left+1)) - 1;
+
+        return 1 + countNodes(root->left) + countNodes(root->right);
+    }
+
+    int countLeft(TreeNode* root){
+        int h = 0;
+        while(root){
+            h++;
+            root = root->left;
+        }
+        return h;
+    }
+    int countRight(TreeNode* root){
+        int h = 0;
+        while(root){
+            h++;
+            root = root->right;
+        }
+        return h;
+    }
+    Time Complexity: O(log n * log n) for the height calculation
+    Space Complexity: O(h) where h is the height of the tree
+
+25. Construct Binary Tree
+    i. PreOrder and Inorder
+        TreeNode* buildTree(vector<int>& preoder, vector<int>& inorder){
+            map<int,int> mp;
+
+            for(int i=0 ; i<inorder.size() ; i++){
+                mp[inorder[i]] = i; // Store the index of each value in inorder
+            }
+
+            TreeNode* root = buildTree(preoder,0, preoder.size()-1, inorder, 0, inorder.size()-1, mp);
+            return root;
+        }
+
+        TreeNode* buildTree(vector<int>& preorder, int preStart, int preEnd, vector<int>& inorder, int inStart, int inEnd, map<int,int>& mp) {
+            if (preStart > preEnd || inStart > inEnd) return NULL;
+
+            TreeNode* root = new TreeNode(preorder[preStart]);
+            int inRootIndex = mp[root->val]; // Get the index of the root in inorder
+            int numsLeft = inRootIndex - inStart; // Number of nodes in the left subtree
+
+            // Recursively build the left and right subtrees
+            root->left = buildTree(preorder, preStart + 1, preStart + numsLeft, inorder, inStart, inRootIndex - 1, mp);
+            root->right = buildTree(preorder, preStart + numsLeft + 1, preEnd, inorder, inRootIndex + 1, inEnd, mp);
+
+            return root;
+        }
+        Time Complexity: O(n)
+        Space Complexity: O(n) for the map and recursion stack
+    ii. Inorder and Postorder
+        TreeNode* buildTree(vector<int>& inorder, vector<int>& postorder) {
+            map<int,int> mp;
+
+            for(int i=0 ; i<inorder.size() ; i++){
+                mp[inorder[i]] = i; // Store the index of each value in inorder
+            }
+
+            TreeNode* root = buildTree(inorder, postorder, 0, inorder.size()-1, 0, postorder.size()-1, mp);
+            return root;
+        }
+        TreeNode* buildTree(vector<int>& inorder, vector<int>& postorder, int inStart, int inEnd, int postStart, int postEnd, map<int,int>& mp) {
+            if (inStart > inEnd || postStart > postEnd) return NULL;
+
+            TreeNode* root = new TreeNode(postorder[postEnd]);
+            int inRootIndex = mp[root->val]; // Get the index of the root in inorder
+            int numsLeft = inRootIndex - inStart; // Number of nodes in the left subtree
+
+            // Recursively build the right and left subtrees
+            root->right = buildTree(inorder, postorder, inRootIndex + 1, inEnd, postStart + numsLeft, postEnd - 1, mp);
+            root->left = buildTree(inorder, postorder, inStart, inRootIndex - 1, postStart, postStart + numsLeft - 1, mp);
+
+            return root;
+        }
+        Time Complexity: O(n)
+        Space Complexity: O(n) for the map and recursion stack
+
+26. 
+
+
+
+
+
 
     
     
