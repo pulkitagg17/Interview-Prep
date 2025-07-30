@@ -892,8 +892,146 @@
         Time Complexity: O(n)
         Space Complexity: O(n) for the map and recursion stack
 
-26. 
+26. Serialize and DeSerialize in Binary Tree
+    i. Serialize
+        string serialize(TreeNode* root) {
+            if (root == NULL) return "";
 
+            string s = "";
+            queue<TreeNode*> q;
+            q.push(root);
+            while (!q.empty()) {
+                TreeNode* node = q.front();
+                q.pop();
+
+                if (node == NULL) {
+                    s += "#,";
+                } else {
+                    s += to_string(node->val) + ",";
+                    q.push(node->left);
+                    q.push(node->right);
+                }
+            }
+
+            return s;
+        }
+    ii. DeSerialize
+        TreeNode* deserialize(string data) {
+            if (data.empty()) return NULL;
+
+            stringstream ss(data);
+            string str;
+            getline(ss, str, ',');
+            if (str == "#") return NULL;
+
+            TreeNode* root = new TreeNode(stoi(str));
+            queue<TreeNode*> q;
+            q.push(root);
+
+            while (!q.empty()) {
+                TreeNode* node = q.front();
+                q.pop();
+
+                getline(ss, str, ',');
+                if (str != "#") {
+                    node->left = new TreeNode(stoi(str));
+                    q.push(node->left);
+                }
+
+                getline(ss, str, ',');
+                if (str != "#") {
+                    node->right = new TreeNode(stoi(str));
+                    q.push(node->right);
+                }
+            }
+
+            return root;
+        }
+
+27. MORRIS INORDER Traversal(Threaded Binary Tree)
+    vector<int> inorderMorris(TreeNode* root){
+        vector<int> res;
+        TreeNode* curr = root;
+        while(curr != NULL){
+            if(curr->left == NULL){
+                res.push_back(curr->val);
+                curr = curr->right; // Move to the right child
+            } 
+            else{
+                TreeNode* prev = curr->left;
+                while(prev->right != NULL && prev->right != curr){
+                    prev = prev->right; // Find the rightmost node in the left subtree
+                }
+
+                if(prev->right == NULL){
+                    prev->right = curr;
+                    // res.push_back(curr->val); // Visit the current node -> FOR PREORDER
+                    curr = curr->left; // Move to the left child
+                }
+                else{
+                    prev->right = NULL; // Restore the tree structure
+                    res.push_back(curr->val); // Visit the current node ->DELETE THIS FOR PREODER
+                    curr = curr->right; // Move to the right child
+                }
+            }
+        }
+        return res;
+    }
+    Time Complexity: O(n)
+    Space Complexity: O(1) - no extra space used for traversal
+
+28. Flatten Binary Tree to Linked List
+    1. Naive Approach -> preorder + new Linked List
+    2. Recusive approach
+       TreeNode* prev = nullptr;
+       void flatten(TreeNode* root){
+            if(root == nullptr) return;
+
+            flatten(root->right); // Flatten the right subtree first
+            flatten(root->left); // Flatten the left subtree
+
+            root->right = prev;
+            root->left = nullptr;
+            prev = root;
+        }
+    
+    3. Iterative with stack
+       void flatten(TreeNode* root){
+            if(root == NULL) return;
+
+            stack<TreeNode*> st;
+            st.push(root);
+            TreeNode* prev = NULL;
+
+            while(!st.empty()){
+                TreeNode* curr = st.top(); st.pop();
+
+                if(curr->left) st.push(curr->left);
+                if(curr->right) st.push(curr->right);
+
+                if(!st.empty())
+                    curr->right = st.top();
+                
+                curr->left = NULL;
+            }
+       }    
+    
+    4. Morris BABA
+       void flatten(TreeNode* root){
+            TreeNode* curr = root;
+            while(curr!=NULL){
+                if(curr->left == NULL){
+                    TreeNode* prev = curr->left;
+
+                    while(prev->right)
+                        prev = prev->right;
+                    
+                    prev->right = curr->right; 
+                    curr->right = curr->left;
+                }
+                curr = curr->right;
+            }
+       }
 
 
 
