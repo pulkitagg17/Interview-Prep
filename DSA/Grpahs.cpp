@@ -324,7 +324,7 @@ in adj - list and matric
             }
             return dist;
         }
-    iii. Bellman-Ford Algorithm
+    iii. Bellman-Ford Algorithm(helps to detect neagtive cycle - only in DG)
         vector<int> bellmanFord(int V, vector<vector<int>>& edges, int S) {
             vector<int> dist(V, INT_MAX);
             dist[S] = 0;
