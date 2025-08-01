@@ -334,7 +334,8 @@ in adj - list and matric
                     int u = edge[0];
                     int v = edge[1];
                     int weight = edge[2];
-
+                    //relaxation of edges
+                    // if the distance to u is not infinity and the distance to v can be minimized
                     if(dist[u] != INT_MAX && dist[u] + weight < dist[v]) {
                         dist[v] = dist[u] + weight;
                     }
@@ -354,7 +355,8 @@ in adj - list and matric
 
             return dist;
         }
-    iv. Floyd-Warshall Algorithm
+    iv. Floyd-Warshall Algorithm(multi source shortest path algorithm)
+         
         vector<vector<int>> floydWarshall(int V, vector<vector<int>>& edges) {
             vector<vector<int>> dist(V, vector<int>(V, INT_MAX));
 
