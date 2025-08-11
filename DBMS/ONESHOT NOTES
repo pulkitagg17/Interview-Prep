@@ -1,0 +1,392 @@
+LEC-1
+
+DATA
+-raw, unorganised facts and details like text,fig, symbols
+-data does not carry any specific purpose and has no significance by itself
+-data is raw information
+
+TYPES OF DATA
+1. Quantitative - numerical(weight,volume,price)
+2. Qualitative - descriptive (color, texture, taste)
+
+INFORMATION
+-information is processed data that has meaning and purpose
+-information is data that has been organized or structured in a way that it can be understood and used
+-info is extracted from data by analyzing, interpreting, and presenting it in a meaningful context
+
+DATA VS INFORMATION
+- Data is raw facts, while information is processed data.
+- unorganised vs organised
+- Data has no meaning, while information has meaning and purpose(when analyzed and interpreted)
+- Data does not depend on information, but information depends on data.
+- Data isnt sufficient for decision making, but you can make decisions based on information.
+
+DATABASE - an electronic place or system where data is stored in a way that it can be easily accessed, managed, and updated.
+- to make real use of it we need DBMS
+
+DBMS (Database Management System)
+- it is a collection of interraleted data(database) and a set of programs to access those data.
+-primary goal is to provide a way to store and retrieve database info.
+- DBMS is the database itself, along with all software and functionality(oerations include CRUD)
+
+DBMS vs FILE SYSTEM
+- data redundancy and inconsistency
+- difficulty in accessing data
+- intergrity problems
+- atomicity problems
+- concurrent-access anomalies
+- security problems
+above are disadv of file and adv of DBMS
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+LEC-2(DBMS ARCHITECTURE)
+
+VIEWS OF DATA(THREE-SCHEMA ARCH)
+- major purpose of DBMS - user abstraction(hide how data is stored and maintained)
+-abstraction is applied through several levels for simplify user interaction
+- the main reason for three level is to unable multi user to access the same data with personalised views while storing it only once
+
+THREE LEVELS
+1.  Physical Level/Internal Level (Goal- we must define algo that stores data  efficiently)
+  - lowest level - how data is stored - low level DS is used
+  - it has Physical schema ->describes physical storage strc of DB
+  - Talks about-> storage allocation(N-ary Tree), data compression, encryption.
+
+2.  Logical Level/ Conceputal Level(Goal- ease of use)
+  - Conceputal schema -> descibes the design of db and what data are stored and what relationships exists among them(data).
+  - user view is independent of physical storage
+  - DBA use this level of abstraction to define the structure of the database
+
+3.  View Level/ External Level(Goal- user interaction)
+  - high level abstraction-> to simplify user interaction with system by providing diff view
+  - Each view schema describes a part of interested user group and hides remaining data
+  - View schema -> describes how data is presented to the user
+  - at this level - subschema exists which is subset of conceptual schema(they define diff  views of database)
+  - view also provides security mechanism -> prevent user from accessing certain parts of DB
+
+
+INSTANCES AND SCHEMAS
+- Instances - collection of info stored in DB at a particular moment
+- Schema - the overall design of DB
+         - it is structural description of data(doesnt change frequently, data may)
+         - DB schema corrosponds to variable decraltions(along with type) in prog.
+         - it is a blueprint of the database
+         - Three Schemas - Physical, Logical, View(called subschema)
+         - logical schema is the most important as it defines the structure of the database
+         - physical schema is the least important as it deals with how data is stored and should not affect logical schema or design
+
+
+DATA MODELS(ER model, Relational model, Object-oriented model, object-relational model)
+- provides a way to describe the design of DB at logical level
+- underlying DB struc -> is Data models -> a collections of conceputal tools for describing data, data relationships, data semantics and consistency constraints.
+
+
+DATABASE LANGUAGES
+- DDL - Data Definition Language
+      - used to define the database structure and schema
+      - commands include CREATE, ALTER, DROP
+      - it defines the tables, fields, data types, and relationships
+
+- DML - Data Manipulation Language
+      - used to manipulate data within the database
+      - commands include SELECT, INSERT, UPDATE, DELETE
+      - it allows users to retrieve, insert, update, and delete data
+
+- DCL - Data Control Language
+      - used to control access to data in the database
+      - commands include GRANT, REVOKE
+      - it allows administrators to define user permissions and roles
+
+- TCL - Transaction Control Language
+      - used to manage transactions in the database
+      - commands include COMMIT, ROLLBACK, SAVEPOINT
+      - it ensures data integrity by allowing users to group multiple operations into a single transaction
+
+- SQL - Structured Query Language
+      - a standard language for managing and manipulating relational databases
+      - it includes DDL, DML, DCL, and TCL commands
+      - SQL is used to create, modify, query, and control access to databases
+      - it is the most widely used language for interacting with relational databases
+      - SQL is a declarative language, meaning users specify what they want to do with the data, not how to do it
+
+HOW DB ACCESSED FROM APPLICATION PROGRAMS?
+- apps written in host language like C/C++, Java, Python, etc. interacts with DB
+- DBMS provides APIs or libraries that provide to send DDL/DML commands to DB and retrieve results
+- ODBC - microsoft C
+- JDBC - java
+- Python - sqlite3, psycopg2, pymysql
+
+DATABASE ADMINISTRATOR(DBA)
+- DBA has central control of both data and programs that access those data
+- functions - Schema defination
+            - storage struc and access method
+            - schema and physical orginazation modifications
+            - authorization control
+            - routine maintaince -> periodic backups, security patches, any upgrades
+
+
+DBMS APPLICATION ARCHITECTURE(client machine + remote db user + server machines)
+
+T1 Architecture 
+- client,server and db all present on same machine
+
+T2 Architecture(2 componets)
+- C1 - user + application(client machine invokes DB system functionality at server end through query language)
+- C2 - db system
+-API like ODBS, JBDC are used to communicate btw these two
+
+T3 Architecture(3 Components) -> best for WWW application
+- Clinet machine - only frontend - no db calls
+- clinet machine - comm - app server - comm - db system(To access data)
+- business logic - app server
+
+adv - scalabilty(due to distribution), data intergrity(app server acts as middle layer), security(client cant directly access DB)
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+LEC - 3(ER Model)
+
+ER Model
+- high level data model - real world perception - collection of entities and relationships(basic objects)
+-ER model grapgically known as ER diagram -> blueprint of DB
+
+ENTITY(thing or object which is distinguishable from all other objs)
+- it has physical existence, can be uniquely identified(student_id in college)
+- strong entity - can be uniquely identified - primary key
+- weak entity - cant be - depends on some other strong entity 
+              - loan->strong entity, payment -> weak, as instalments are sequential no counter can be generated for each loan
+- weak depends on strong for existence
+
+ENTITY SET 
+- set of entities of same type shares same properties or attributes
+- student is an entity set
+
+ATTRIBUTES 
+- entity is rep by set of attributes
+- each entity got value for each attributes(set of permitted values -> domain or value set)
+- eg student entity attributes -> student_id, name, class, course etc
+
+TYPES OF ATTRIBUTES
+
+simple - cnt be divided further(customers acc number)
+composite - can be divided further(address-> city, state, street etc)
+single-valued - only one value attribute(student_id)
+multi-valued - more than one value attribute(phoen no, nominee name etc, limit may be applied)
+Derived - values are derived from other realted attribute(Age)
+null-valued - no value of attribute(middle name) -> may also indicate unknown(employee salary)
+
+RELATIONSHIPS 
+- association among two or more entities
+- strong relationship - two independent entities
+- weak relationship - btw weak and strong(or with its owner) entity(loan-payment)
+- Degree of relationship(no of entities participation) -> unary(employee manages emp), binary(common, student - courses), ternary(emp work on branch - emp work on job)
+
+RELATIONSHIPS CONSTRAINTS 
+Mapping Cardinaltiy/ Cardinaltiy Ratio -> no of entities to which another entity can be associated via relationship
+- one to one(citizen has adhar card)
+- one to many(citizen has vehicle)
+- many to one(course taken by professor)
+- many to many(customer by products, student attend courses)
+
+Participation constraints(aka minimum Cardinaltiy constraints)
+- partial participation -> not all entities are involved in relaionship Instances
+- total participation -> each entity must be invovled at least one relationship Instances
+- eg - cust takes loan, loan has total parti cause it cant exists without cust but cust has partial(weak entity has total participation but strong may not).
+
+ER notation - done in notebook
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+LEC - 4(ER FEATURES)
+
+-when complexity increase it is better to use extended ER FEATURES
+
+SPECIALISATION(splitting up the entity set into further sub-entity on on basis of functionalites , specialities and features - TOP DOWN APPROACH)
+- we may require to subgroup an entity - sub entity
+- Person(superclass) entity set -> customer, student, emp etc(these are subclass)
+- we have "is-a" relationship between super and sub
+- depicted by triangle
+
+why specialisation?
+- to group such entites whose attributes may only applicable to few entites of parent sentity set and DB designer can show their distnctive feature of sub entites
+
+GENERALISATION(reverse of specialisation)
+- DB designer may bound overlapping two entites -> designer may consider making a generalised set.
+- bottom up approach-> "is-a" is also used here
+-> why? makes DB more refined and simpler, commmon attributes are not repeated
+
+ATTRIBUTES INHERITANCE
+- BOTH GENERALISATION AND SPECIALISATION  have it
+- attributes of higher level entity set are inherted by lower entity sets 
+- eg - cust and emp inherts attribute person 
+
+PARTICIPATION INHERITANCE - if parent entity set participate in a relationship then child will too!
+
+AGGREGATION
+- to show relationship among relationships
+- abstraction is applied to treat relationship as higher-level entites-> call it abstract entity
+- avoid redundancy by aggregating relationship as entity set itself.
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+other lecture were about making er model(we will get to it)
+LEC - 7(Relational Model -> RDBMS -> oracle, IBM, mySql,MS Access)
+
+- organises data in form of tables, collections of table with unique name
+- row(tuple-> a single row of table representing a single data in unique table) rep a relaionship among set of values
+- Column rep attribute of relation, each attri -> has permitted value-> domain of attribute
+- Relational Schema - define desgin and struc of relation(Contain names of relation and all column/attri)
+- Degree of Table - no of attri/column
+- Cardinality - total no of tuples
+- Relational key - set of attri which can uniquely identify each tuple
+- Imp properties of R-Table - relation name/attri name/ tuple -> distinct/unique
+                            - value -> atomic(cant be broken down)
+                            - sequence of row and col ->had no significance
+                            - Table must follow intergrty constraints
+
+
+
+RELATIONAL MODEL KEYS
+super key     - uniquly identify each tuple
+Candidate Key - min subset of super key -> no redudant attri , cant be null
+Primary key   - selected out of CK(least no of attri)
+Alternate key - All CK except PK
+Forgein key   - create relation btw two table
+              - r1 to r2 referencing(r1 may include among its attri PK of another relation r2)
+              - r1 - referecning(child) of FK depedency and r2 - referenced(parent) relation
+              - it helps to cross refercnce btw two diff table
+Composite key - PK formed using atleast 2 attri
+Compound key  - PK which is formed using 2 FK
+Surrogate Key - synthetic PK, generated auto by DB - usually int, maybe used as PK
+
+
+INTERGRITY CONSTRAINTS
+- CRUD operations must be done with intergrity-> always consistent and donot corrupt
+- Domain constraints - restricts value in relation, in domain
+                     - restricts the data type of every attri 
+- Entity constraints - every relation should have PK!=NULL
+
+
+REFERENTIAL CONSTRAINTS
+- specified btw two realtion(maintain consistency)
+- requires-> value in specified attri of any tuple should reflect in atleast one tuple of refercncing realtion
+-child table should have values of master table's refercnce key(PK or UK) or must be NULL
+
+
+KEY CONSTRAINTS
+- NOT NULL - should have value
+- UNIQUE - values in column are diff
+- DEFAULT - use to set default value if not inserted
+- CHECK  - intergrity constraints-> it keeps check of integrity before and after CRUD operation
+- PRIMARY KEY - attri or set of attri that unique identifies each entity in set(must be unique and not null)
+- FORGEIN KEY - t1 primary should be fk of another table entity set-> this constraints help to maintain the connection.
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+LEC - 8 skip for now
+lec - 9 and 10 sql and queries
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+LEC - 11(NORMALISATION - step toward DB optimization, why? -> to avoid reduncancy)
+
+Functional Dependency(FD)
+- relation btw primary key attri with other attri
+- X(Determinant) -> Y(Dependent)
+
+Types of FD
+1. Trivial FD - A->B (B is subset of A), also A->A and B->B
+2. Non-Trival - B is not the subset of A (A intersection B = NULL)
+
+Rules of FD(Armstrong's Axioms)
+1. Reflexive - if A is set of attri and B is subset of A, A->B holds
+2. Augmentation - A->B holds, AX->BX also holds(adding X attrin wont change anything)
+3. Transitivity - A->B, B->C then A->C (holds)
+
+what if we have redundant data?
+- insert, delete, update anomalies
+
+ANOMALIES - means abnormalities
+1. Insertion Anomalies - when data(attri) can be inserted without presence of other data
+2. Deletion Anomalies - situation where the deletion of data results in unintended loss of some other imp data
+3. Updation Anomalies(or modification anomalies) - single updation of data needs multiple rows data updation
+                                                 - due to many data updation -> data inconsistency arise  
+-Due to these anomalies - DB size inc, DB perfomance des 
+
+What is Normalisation?
+-minimise reduncancy, eliminate undesirable characteristics like insertion, update and deletion anomalies
+- divided composite attri to individual attri or larger table into smaller and links them using relationship
+- normal form is used to reduce reduncancy from database table
+
+TYPES OF NORMAL FORMS
+1NF - every relation must have atomic value
+    - relation must not have multivalued attri
+
+2NF - must be 1NF
+    - no partial Dependency - all non prime attri must be fully dependent on PK
+                            - non prime attribute can not depend on part of PK
+
+3NF - must be 2NF
+    - no transitivity dependency exists - non prime attri should not find a non-prime attri
+
+BCNF(boyce-Codd NF) - relation must be 3NF
+                    - FD - A->B, A must be super key
+                    - we must not derive prime attribute from any prime or non-rpime attri
+
+ADV of Normalisation - minimise data reduncancy
+                     - greater overall database organisation
+                     - data consistency is maintained in DB.
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+LEC - 12
+
+Transaction
+-
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
