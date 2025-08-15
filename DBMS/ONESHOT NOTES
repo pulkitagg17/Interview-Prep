@@ -342,51 +342,276 @@ ADV of Normalisation - minimise data reduncancy
 LEC - 12
 
 Transaction
--
+- a unit of work done against the DB in a logical sequence(seq is imp)
+- to put it in good words - it is a logical unit of work that contains one or more sql statements, result of all statement either to be completed successfully or rolledback to its previous form
 
 
+ACID PROPERTIES(to ensure the integrity of DB)
+- Atomicity - either all the success or none
+- Consistency - integrity constraints must be maintained before and after a transcation
+- Isolation - even though multiple transaction may execute concurrently, it is guaranted that either one of them will first finish then each other - hence a transaction is isolated and is unaware of the other one.
+- Durability - after transaction completion, changes should persist in db, even in system failures.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+TRANSACTION STATES
+Active state - very first state, read and write op are performed, no error->Partially, error->Failed state
+Partially Committed state - T executed(stored in buffer), if changes made permanent-> commited, error/failure-> failed state
+Committed state - changes->saved->permanet->cant be rolledback->new consistent state achieved
+Failed state - T executes-> failure occurs-> impossible to executes-> failed state
+Aborted state - T reaches failed state-> changes are rolled back -> DB achieves Prior state
+Terminated state - either commited or aborted
+ 
+	partial -> committed 
+       /  |                \
+      /   |                 \
+active    |                  Terminated
+     \    |                  /
+      \   |                 /
+       failed -----> aborted  
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+LEC - 13(Implementing Atomicity and Duralbility(Recovery mechanism Components) in Transaction)
+
+SHADOW COPY SCHEME
+- create a copy(shadow copy) of db
+- maintain a db-pointer at disk-> at any instance point at DB, if want to update DB(lets say T)-> create a full copy of DB.
+- futher updates are done on new copy of dB -> leaving original intact
+- if T has to aborted -> copy is deleted -> orignal stays unaffected
+- if T is succuss -> it is committed
+
+- OS make sure all pages of new copy are written on disk
+- DB system update db-pointer -> to new copy point
+- new copy = curr copy -> old one deleted
+- T is COMMITED 
+
+ATOMICITY - if T fails -> old copy delete, T can be aborted -> delete new copy, reflected all updates or none
+DURABILITY - if system fail before update -> restarts -> read db-pointer, see original content -> no effects will be visible(T is succuss only when db-pointer updates)
+           - if system fails after db-pointer update -> since all have been updated -> system restarts -> read new copy of db
+
+**shortNote** - implementaion depends on db-pointer writing, Luckily disk system provide atomic update to disk block or sector-> so db-pointer lies entirely in a single sector-> by storing db-pointer in beginning of disk.
+
+inefficient -> entire db is copied for every transaction.
+
+LOG-BASED RECOVERY METHODS
+- it is a sequence of record-> maintained in stable storage-> if failure-> recoverd from that
+- process of storing log should be done before actual transaction is applied in db -> any op performed -> recorded in log
+- STABLE STORAGE -> techno of computer storage-> guarantees atomicity at any given write op, also robut against some hardware and power failures.
+
+DEFERRED DB MODIFICATION(db only updated if transaction fully commited)
+- it ensures atomicity by recording all op in log -> only if transaction is fully comm
+- if T fails/aborted, info in log is ignored
+- if T success, records associated in log file are used to deferred write execution
+- if T fails while updating - we redo it
+
+IMMEDIATE DB MODIFICATION
+- The database system updates the actual database on disk immediately (or fairly soon) even before the transaction has committed.
+- DB modification written by active T is called uncommitted modifications
+- failure and succuss point discussed above.
+- update only take place when log records in stable storage
+- failure handling - failure befire comm/abort-> old value restored
+                   - if T comm and sys crash -> new values field is used to redo T having commit logs in logs.
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+LEC - 14(INDEX - a DS used to locate and access data quickly)
+
+- Indexing -> use to optimize performance of db by minimising no. of disk access
+- speed up operation -> with read op like select and where clause
+- Search Key -> contains copy of PK or CK of table
+- Data Ref. -> pointer holding add of disk block -> value of key is stored
+- Indexing is optional and secondary mean to access tuple
+- Index file is always sorted
+
+INDEXING METHODS
+1. Primary Indexing(Clustering Index)
+    - if data file is sequential in order -> a Primary Index(can be PK or non-PK) is key whose search key also defines the sequential order of file.
+    - primary index != PK
+    DENSE AND SPARSE INDICES
+    1. Dense Index  
+        - it contains record for every search key value in data file
+        - index record contains search-key value and pointer to first data record with search-key value, rest of record are stored sequentially after first record
+        - it needs more space to store idx records itself.
+    
+    2. Sparse Index
+        - idx record appears for only some of search-key values
+        - sparse idx help to resolve dense indexing-> in this method, a range of index columns stores the same data block address, when data needs to be retrieved, the block address will be fetched.
+    
+    Primary Indexing can be Based on
+    1. Key Attri
+        - data files stored wrt PK-> Pk will be used as Search-key in idx
+        - Sparse idx will be formed-> no. of entries in idx file = no. of blocks in datafile
+    
+    2. Non-Key Attri
+        - data stored wrt non-key attri
+        - no. of entries in idx = unique non-key attri in datafile
+        - this is dense idx-> hence all unique key have an entry in idx file
+    
+    3. Multi-level Indexing
+        - index with two or more levels
+        - if single level become large->binary search would take more time
+    
+2. Secondary Index(Non-Clustering idx)
+    - datafile unsorted -> Primary Indexing not possible
+    - can be done on key or non-key attri
+    - called secondary cause one indexing is applied normally
+    - no. of entries = no. of records in datafile
+    - its an example of dense index
+
+ADV - faster access and retrieval, I/O is less
+DIS - add space, idxing dec performance - insert,delete,update
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+LEC - 15(NO-SQL)
+- non-tabular db, main types-> key-value, wide-column, graph
+- provide flexible schemas(adjust dynamically) and scale easily with large data & high load
+- open source and capable of horizantal scaling
+
+HISTORY OF NoSql - rise of developers, unstructed data became trend as storage capacity rose
+                 - unstructued data gave them alot of flexibility
+                 - cloud computing became trend, distributing data accross multiple servers.
+
+No-Sql ADV
+- Flexible Schema
+- Horizontal Scaling(also known as scale-out) - eff with non-rel db-> db collected are self-contained and not coupled relationally - no join op, achieved thorugh Sharding or Replica-Set
+- High Availability - due to auto replication
+- Easy Insert and Read Op - but diff delete & update
+- Caching
+- Use case in Cloud Comp.
+
+when to use? - Fast-paced agile dev
+             - Semi-stru data and huge vol
+             - Req for scale-out arch
+             - morden services-> realtime streaming and micro-services
+
+No-Sql Misconception
+- relationship data better stores in RDBMS -> well it is easy in NOSQL
+- No-Sql dont support ACID - it do
+
+
+Types of NoSql Data Models
+1. Key-Value Stores(Amazon DynamoDB, MongoDB, Oracle No-Sql)
+    - attri named key and value(only two columns)
+    - use case -> user profile, shopping carts etc
+    - use compact, eff idx struc to quickly find a key(ideal for constant time finding)
+    - optimal use case -> real time random data access ->gaming, finance
+                       -> Caching Mech for frquent data access
+                       -> Application is designed on simple key-value queries
+
+2. Column-Oriented/ Columnar/ C-Store/ Wide-Column(Cassandra, RedShift, Snowflake)
+    - data is stored as each row of column will be next to other rows from that sawe column
+    - use case -> analytics
+
+3. Document Based Stores(MongoDB, COuchDB)
+    - DB stores data in doc similar to JSON, each doc contains pair of field and values -> values can be string,int,bool,array,objects
+    - use case - ecomm, trading plat, mobile devlopment accross industries
+
+4. Graph Based Stores
+    - focus in relationship btw data elements, each is stored as node, connection btw ele is called links or relationships
+    - in it, connections are first-class elements of db
+    - optimised to capture and search connection btw data ele, overcoming overhead, we usually get from joins
+    - use case -> fraud detection, social netwrok, knowlege graphs.
+
+DIS - Data Redundancy
+    - update and delete costly
+    - All type of No-Sql doesnt fullfil all application need
+    - Dont support ACID prop in general & data entry with consistency constraints.
+
+SQL vs NOSQL -> notes(31 page)
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+LEC - 16
+
+Types of Database
+1. RELATIONAL DATABASE
+    - quite popular, known as RDBMS, commonly use SQL for CRUD op
+    - store data in discrete table-> joined through FK
+    - they are ubiquitous, stable user base, highly optimised for structured data, stronger gurantee of data normalisation, scalabilty issue(Horizontal scaling), data huge-> system complex
+
+2. OBJECT ORIENTED DATABASE(ObjectDB, GemStone)
+    - based in OOPS programming (inheritance, object-identity,encapsulation)
+    - supports rich system -> structured and collection type.
+    - all info is stored as object packages and available at instantly of multiple table
+    ADV - data storage and retieval easy
+        - can handle complex data relation and more variety data type than RDBMS
+        - friendly for real-world problem
+        - work with functionality of OOPs
+    DIS - high compx -> issue in CRUD slowed
+        - no commuinity
+        - no views like RDBMS
+
+3. NO-SQL DATABASE
+    - non-tabular, varity-> key-value, columanar,grpah etc
+    - flexible , scale easy, schema less, adjust dynamically
+    - can handle big data, are open source, capability of horizonatal scaling
+    - stores data in format other than relation
+
+4. HIERARCHICAL DATABASE
+    - data base is based on concrete hierarchy -> emp report to single department
+    - schema is tree like, root is parent -> store data with connected links, subdirectory, child records etc
+    - each child record can have only parent, each field of recorded data have only one value, retrieval is hard as we have to travese tree
+    - can also be used as physical models cause disk storage system inhertly are same to tree-like struc(hierarchical)
+    - ADV - ease of use -> one to many organisation of data make traversing easy and fast.
+          - due to sepration of table physically-> info can be added or deteletd without affecting entire db, most prog lang provide struc for tree
+    - DIS - inflexible nature, one to many is not ideal for complex struc
+          - it cannot describe relationship of each child node who have multi parents
+          -  top-to-bottom seq searching is time consuming and more storage(redundant)
+
+5. NETWORK DATABASE(intergrated data store(IDS), IDMS, Raima DM, TurbolMAGE)
+    - Extension of Hierarchical database
+    - child have freedom to associate with multiple parents records
+    - organised in graph
+    - can handle complex relation, maintaince is tedious
+    - M:N links can make retierval slow
+    - no community support
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+
+LEC - 17(CLUSTERING - Replica same dataset on diff server)
+
+- database clustering or replica-set, is process of combining more than one servers or instance connecting a single db.
+- sometimes server may not be adequete to handle req, so clustering is needed
+- database clustering, sql server clustering, sql clustering are closely related with sql is the lang to manage database info
+
+ADV - Data Reduncancy - needed as we have multiple server
+    - Load Balancing - or scalability - bought by clustering, clustering enables a group of servers (a cluster) to share the incoming traffic, preventing any single server from being overwhelmed which takes us to HA
+    - High Availability - amount of time a db is considered available
+
+HOW CLUSTERING WORKS
+- in clustering arch, all reqs are splits btw computer, so individual user req is executed and produced by no. of computer system.
+- clustering is serviceable definitely by ability of load balancing and high-availability. if one nodes collapses, the request is handled by another node. so no possiblities of absolute system failure
+
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+LEC - 18
+
+Partitioning - big problem can be solved if chopped down in little ones
+             - divide a big db, containing data metrices and indexed into smaller and handy slices called partitions
+             - these are used by sql without altertation
+             - technique used to divide stored db obj into seperate severs, inc perfo, controlability of data
+             - horizontally scale server-macines, handle big data easily
+
+Vertical Partitioning - slice column-vise, need to access diff servers to get compelete tuples
+
+Horizontal Partitioning - row-wise, independent chunks of data tuples stored in diff servers
+
+when Partition? database become huge, no of req inc enough to slow down single db server
+
+ADV - Parallelism, Availability, Performance, Managebility, Redice cost, scaling-up verticaly might get costy
+
+Distributed DB - single logical db-> spread accross multi location(servers) and logically connected by network
+               - possible -> clustering, Partitioning, Sharding
+
+Sharding - technique for Horizonatal partitoining
+         - idea -> instead one db instance, split up and introduce routing layer so that we can forward the req to right instance that actually contain data
+         PROs - scalability, availability
+         CONS - Complex, not well suited for analytical type queries
+
+**READ CASE STUDY AND LEC 20, 21 FROM NOTES**
